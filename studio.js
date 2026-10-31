@@ -82,6 +82,11 @@ function journey(){
 }
 function render(view){if(view==="insights")renderInsights();else if(view==="journey")journey();}
 document.addEventListener("click",e=>{
+ const book=e.target.closest('[data-action="new"][data-entity="appointments"]');
+ if(book&&api.getView()==="journey"&&selectedPatient!==null){
+   const selector=$("formFields")?.querySelector('[name="patient_id"]');
+   if(selector){selector.value=String(selectedPatient);updateSlotHint();}
+ }
  const b=e.target.closest("[data-studio]");if(!b)return;
  if(b.dataset.studio==="previous")weekOffset--;
  if(b.dataset.studio==="next")weekOffset++;
@@ -96,5 +101,31 @@ document.addEventListener("change",e=>{
 document.addEventListener("input",e=>{
  if(e.target.id==="scenarioExtra"){scenarioExtra=Number(e.target.value);updateScenario();}
 });
+
+function updateSlotHint(){
+ const hint=$("slotHint"),fields=$("formFields");if(!hint||!fields)return;
+ const doctor=fields.querySelector('[name="doctor_id"]'),patient=fields.querySelector('[name="patient_id"]'),date=fields.querySelector('[name="appointment_date"]'),status=fields.querySelector('[name="status"]');
+ const doctorId=Number(doctor?.value),patientId=Number(patient?.value),when=date?.value||"",state=status?.value||"Scheduled";
+ if(!doctorId||!patientId||!when){hint.textContent="Select a doctor, patient and start time to check for overlapping bookings in this demo.";hint.className="slot-hint";return;}
+ if(state!=="Scheduled"){hint.textContent="This appointment is not Scheduled, so it does not reserve the start-time slot.";hint.className="slot-hint";return;}
+ const exclude=api.getEditId(),bookings=api.getData().appointments.filter(a=>a.status==="Scheduled"&&Number(a.appointment_id)!==Number(exclude));
+ const colliding=bookings.filter(a=>a.appointment_date===when&&(Number(a.doctor_id)===doctorId||Number(a.patient_id)===patientId));
+ if(!colliding.length){hint.textContent="✓ This exact start time is available in the current fictional dataset.";hint.className="slot-hint";return;}
+ hint.className="slot-hint bad";
+ let suggestion=[];
+ const start=new Date(when);
+ if(!isNaN(start.getTime())){
+   for(let i=1;i<=12&&suggestion.length<3;i++){
+      const later=new Date(start.getTime()+30*i*60000);
+      const proposed=dateId(later)+"T"+String(later.getHours()).padStart(2,"0")+":"+String(later.getMinutes()).padStart(2,"0");
+      if(proposed.slice(0,10)!==when.slice(0,10))break;
+      if(!bookings.some(a=>a.appointment_date===proposed&&(Number(a.doctor_id)===doctorId||Number(a.patient_id)===patientId)))suggestion.push(proposed.slice(11,16));
+   }
+ }
+ hint.textContent="⚠ That doctor or patient is booked at this exact time."+(suggestion.length?" Try a later start time: "+suggestion.join(", ")+".":" Choose another start time.");
+}
+document.addEventListener("input",e=>{if(e.target?.closest?.("#formFields"))updateSlotHint();});
+document.addEventListener("change",e=>{if(e.target?.closest?.("#formFields"))updateSlotHint();});
+
 window.CareFlowStudio={render};
 })();
