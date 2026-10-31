@@ -1,118 +1,116 @@
-# CareFlow — Hospital Management System
+# CareFlow Studio — Hospital Operations Sandbox
 
-A responsive **Hospital Management System** mini-project with five connected database entities, record CRUD, appointment management, and SQL reporting. The same interface offers a **public demonstration** and a **real MySQL-backed localhost application**.
+An interactive **browser-only hospital operations demonstration** built with HTML, CSS, and JavaScript.
 
-## Quick links
+**Live website:** https://bhumi1107.github.io/Hospital-Management-/
 
-- **Source code:** https://github.com/Bhumi1107/Hospital-Management-
-- **Pages demo (once enabled):** https://bhumi1107.github.io/Hospital-Management-/
+> **Educational portfolio simulation.** Every included patient and doctor is fictional. Do not enter real medical or personal information. There is no login, server, shared database, or clinical security layer.
 
-> **Privacy notice:** GitHub Pages is a *demo*, not a secure patient-record system. It includes clearly fictitious starter data and stores changes in the current browser only. Never enter real patient, medical or other confidential information into the public demo. The localhost app is an educational prototype without login or access controls, so it is also not appropriate for real clinical deployment.
+## Why this project?
 
-## What it does
+Hospital dashboards often show tables without explaining how patients, doctors, appointments and departments connect. CareFlow Studio makes those relationships interactive. Visitors can add fictional appointments, examine changes in workload, explore linked records, and test scheduling constraints.
 
-| Section | Features |
+The idea is not to claim that this is a real hospital management product. It is to demonstrate frontend engineering, domain modeling, state management, simple analytics, and thoughtful UI.
+
+## Try the demo
+
+1. Open **Operations studio**. Explore the weekly planner, appointment counts, department workload and signals.
+2. Open **Appointments**. Add a fictional visit, then return to Operations studio. The schedule and counts update.
+3. Try booking the **same doctor at exactly the same start time**. The form rejects overlapping Scheduled appointments and explains the conflict. It also blocks a patient from being booked twice at the same start time.
+4. Explore the **What-if scenario lab**. Add 0–10 hypothetical department bookings using the slider. The projected counts change, but no appointments are created.
+5. Open **Patient journeys** and select a fictional patient. See linked appointments and medical notes.
+6. Try **Reset demo** to restore the starter dataset, or **Export demo JSON** from a records screen.
+
+## Current features
+
+| Feature | Function |
 | --- | --- |
-| Overview | Patient, doctor, appointment and medical-record counts; upcoming schedule; quick actions |
-| Patients | Add, search, edit and delete patient records |
-| Doctors | Link doctors to departments, and manage doctor records |
-| Appointments | Link patients to doctors; appointment date/time; Scheduled / Completed / Cancelled statuses |
-| Medical records | Patient and doctor linked diagnoses and treatment notes |
-| Departments | Department name and location management |
-| Reports | Appointment JOIN, doctor workload GROUP BY, repeat-patient correlated subquery |
-| Export | Export currently displayed dataset as JSON on user request |
+| Overview dashboard | Counts, upcoming appointments and quick actions |
+| Five-entity record manager | CRUD and search for departments, doctors, patients, appointments and medical records |
+| Operations studio | Status counts, department workload bars and transparent rule-based operational signals |
+| Seven-day planner | Navigate appointment schedules by week |
+| Conflict checks | Prevent exact doctor–time and patient–time collisions for Scheduled appointments |
+| Start-time hints | Suggest unoccupied 30-minute increments after a conflicting start time |
+| What-if simulation | Preview added workload without changing saved records |
+| Patient journeys | Explore connected fictional visits and undated medical notes |
+| Relational reports | Browser-calculated relationship and aggregation examples |
+| Local demo persistence | Browser localStorage keeps fictional edits on the same device |
+| Export/reset | Download demo JSON or restore fictional starter records |
 
-**The five tables match the mini-project ER design:**
+## Project design
 
-- departments(department_id PK, department_name, location)
-- doctors(doctor_id PK, doctor_name, specialization, department_id FK)
-- patients(patient_id PK, patient_name, age, gender, phone)
-- appointments(appointment_id PK, patient_id FK, doctor_id FK, appointment_date, status)
-- medical_records(record_id PK, patient_id FK, doctor_id FK, diagnosis, treatment)
+Five interconnected entities are represented as JavaScript objects:
 
-Foreign keys prevent deletion of referenced records. Input validation covers required fields, phone/age ranges, valid appointments and foreign keys.
+- departments — department_id, department_name, location
+- doctors — doctor_id, doctor_name, specialization, department_id
+- patients — patient_id, patient_name, age, gender, phone
+- appointments — appointment_id, patient_id, doctor_id, appointment_date, status
+- medical_records — record_id, patient_id, doctor_id, diagnosis, treatment
 
-## A. Open demo mode immediately — no installation
+Doctors belong to departments. Appointments link a patient to a doctor. Medical notes also link patients and doctors. Validation checks these relationships. The system prevents deleting a record that is referenced by another record.
 
-Open the index.html file in Chrome or Edge. You can also enable GitHub Pages:
+Medical records have **no date field** in this five-entity model, so the journey explorer explicitly labels them **undated** instead of inventing a clinical timeline.
 
-1. Visit https://github.com/Bhumi1107/Hospital-Management-/settings/pages
-2. Choose **Source: Deploy from a branch**.
-3. Select **main** and **/(root)**, then click **Save**.
-4. Once the Pages deployment succeeds, open https://bhumi1107.github.io/Hospital-Management-/
+## Technology and architecture
 
-Demo data stays in that browser's localStorage; its records are not shared between devices or connected to MySQL. Edits are preserved across refreshes until site storage is cleared.
+**HTML5 · CSS3 · Vanilla JavaScript · Browser localStorage · GitHub Pages**
 
-## B. Run with the real MySQL database on localhost (Windows)
+Browser → interface + rule-based calculations → localStorage
 
-**Prerequisites:** Windows, Python 3.10 or newer, and a running MySQL server (MySQL Community Server or MySQL Workbench connected to its server).
+There is **no MySQL, Python backend, cloud storage, paid API, or AI model** in CareFlow Studio. Its “intelligence” consists of transparent, deterministic calculations rather than machine-learning predictions.
 
-1. On GitHub, click **Code → Download ZIP** and extract the folder.
-2. Double-click **start_local.bat**. The first run creates a local .env file and explains what to do.
-3. Open the extracted **.env** file and change MYSQL_PASSWORD to *your own* MySQL password. If needed, also edit MYSQL_USER, MYSQL_HOST and MYSQL_PORT. Do not upload the .env file to GitHub.
-4. Double-click **start_local.bat** again.
-5. It installs the Python packages, initializes hospital_db and all five MySQL tables, and launches http://127.0.0.1:5000 in your browser.
-6. A blue **MySQL connected** badge indicates that create/read/update/delete operations really use MySQL. A green **Demo mode** badge means you're *not* connected to MySQL.
+The static project requires no build process or installation. Download and extract the repository ZIP, then open index.html in a modern browser. You can also use the live GitHub Pages URL.
 
-Alternative terminal commands (run in the project folder):
+Important files:
 
-    python -m pip install -r requirements.txt
-    python setup_db.py
-    python app.py
+- index.html — core interface, data model, forms and browser-side CRUD
+- studio.js — weekly calendar, workload analysis, what-if lab, patient journey explorer
+- studio.css — responsive Studio design
+- README.md — purpose, architecture, usage and limitations
+- .nojekyll — simple GitHub Pages publishing
 
-If a command fails: confirm that Python is on PATH, that your MySQL server is running, and that .env has correct values. MySQL accounts/credentials cannot be linked automatically by a public GitHub repository.
+## What has been implemented and tested
 
-### Project file guide
+- All major navigation sections render with fictional starter data.
+- A new fictional patient can be created in demo mode and saved in browser storage.
+- A duplicate Scheduled appointment for the same doctor/start time is rejected.
+- Operations Studio updates from the current dataset; the what-if calculations do not save extra bookings.
+- JavaScript syntax checks pass for the Studio scripts.
 
-| File | Purpose |
-| --- | --- |
-| index.html | Full responsive UI, browser demo mode, validation, CRUD screens |
-| app.py | Flask endpoints with parameterized MySQL SQL statements |
-| schema.sql | Relational MySQL schema with PK, FK and constraints |
-| setup_db.py | Initializes hospital_db and required tables |
-| requirements.txt | Python dependencies |
-| .env.example | Credential template without secrets |
-| start_local.bat | Double-click setup/launch on Windows |
-| .gitignore | Prevents committing .env, caches or virtual environments |
-| .nojekyll | Allows simple static hosting on GitHub Pages |
+These are focused functional checks, **not** a full automated end-to-end test suite or proof of production readiness.
 
-### Real SQL demonstrations
+## Engineering decisions
 
-The backend provides three reports at GET /api/reports:
+**Why localStorage?** Visitors can safely explore a standalone portfolio interface without provisioning servers or maintaining accounts. The tradeoff is device-local state; visitors do not share records.
 
-- **JOIN:** appointments with patient, doctor and department names.
-- **GROUP BY:** appointment count per doctor.
-- **Correlated subquery:** patients with more than one appointment.
+**Why transparent rules?** Workload and conflicts can be explained directly from the data. Claiming medical “AI” without a validated model would misrepresent the project.
 
-Backend endpoints:
+**Why a separate operations view?** The value of connected data is clearer when users see operational consequences, not only CRUD forms.
 
-    GET /api/health
-    GET, POST /api/patients
-    PUT, DELETE /api/patients/<id>
+**Why stop at exact start-time conflicts?** Appointment durations, staff availability and room allocation are not modeled. The UI describes this limitation rather than claiming complete scheduling optimization.
 
-Equivalent CRUD routes exist for /api/doctors, /api/departments, /api/appointments and /api/medical_records.
+## Known limitations
 
-## System architecture
+- **Never use with real patient data.** Browser localStorage is not a secured medical database.
+- No real accounts, roles, audit logs, server, backups or multi-user collaboration.
+- The scheduler checks matching start times only, not overlapping visit durations, staff shifts or resources.
+- The scenario lab changes a projected count; it doesn't schedule actual appointments.
+- The relational reports are calculated in JavaScript; they are **not SQL queries**.
+- Starter data is fictional; analytics are demonstrations rather than evidence of real hospital operations.
+- Comprehensive keyboard, accessibility and end-to-end testing remains future work.
 
-**GitHub Pages / file:// demo:** Browser → HTML/CSS/JavaScript → localStorage.
+## Genuine development roadmap
 
-**Local MySQL version:** Browser → Flask REST API on 127.0.0.1:5000 → MySQL hospital_db.
+The following enhancements are **not yet complete**:
 
-GitHub Pages cannot directly host a Flask process or connect securely to a MySQL server. Public demo edits do not change the localhost database.
+- [ ] Extract independently testable scheduling and reporting modules and add automated tests.
+- [ ] Improve keyboard navigation and evaluate accessibility across devices.
+- [ ] Build a visual entity-relationship explorer with linked records.
+- [ ] Add appointment duration and overlap handling.
+- [ ] Add a guided first-visit tour and annotated screenshots.
 
-## Limitations and future extensions
-
-This mini-project does not have accounts, authorization, audit trails, encryption at rest, backups, or clinical safeguards. It is **not** suitable for handling real patient data. Future improvements can add role-based access, appointment conflict detection, pagination, secure authentication, automated tests, and safer deployment.
-
-## How to check your GitHub activity
-
-- **Profile contributions:** https://github.com/Bhumi1107 — scroll to the contribution calendar.
-- **Commits for this project:** https://github.com/Bhumi1107/Hospital-Management-/commits/main/
-- **Other repository contributions:** open any repository → Insights (or the history/Commits link).
-- **All repository list:** https://github.com/Bhumi1107?tab=repositories
-
-A commit records a saved change, not time spent. The contributions calendar is not a reliable measure of coding hours or project quality. Your personal edits and commit messages show meaningful progress better than just having many automated commits.
+For the real evolution of this project, see the repository's **Commits** and **Issues**. Commits show recorded changes, not hours worked.
 
 ---
 
-**Educational DBMS mini-project.** Designed for learning relational databases, CRUD operations, SQL reporting, and web development.
+**CareFlow Studio is a frontend and data-modeling portfolio project, not a clinical application or medical AI system.**
